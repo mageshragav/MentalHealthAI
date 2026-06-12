@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSM-5 Psychological Analysis System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 6px;
+        }
+
+        .disclaimer h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .disclaimer p {
+            color: #856404;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .disclaimer-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .disclaimer-checkbox input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .disclaimer-checkbox label {
+            cursor: pointer;
+            color: #856404;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 1em;
+        }
+
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-analyze {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-analyze:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-analyze:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-clear {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .analysis-box {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .analysis-box h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .analysis-text {
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .sources-section {
+            margin-top: 30px;
+        }
+
+        .sources-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+
+        .source-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .source-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .source-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .source-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        .source-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .badge {
+            background: #f0f0f0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .badge.score {
+            background: #e8f4f8;
+            color: #0066cc;
+            font-weight: 600;
+        }
+
+        .source-content {
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 6px;
+            line-height: 1.6;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            padding: 15px;
+            color: #721c24;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            padding: 15px;
+            color: #155724;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .health-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.offline {
+            background: #dc3545;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .health-status {
+                top: 10px;
+                right: 10px;
+                font-size: 0.8em;
+            }
+
+            .source-header {
+                flex-direction: column;
+            }
+
+            .source-meta {
+                margin-top: 0;
+            }
+        }
+
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        footer p {
+            margin: 5px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .metadata-item {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 3px solid #667eea;
+            font-size: 0.9em;
+        }
+
+        .metadata-item strong {
+            color: #667eea;
+            display: block;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="health-status">
+        <div class="status-indicator" id="statusIndicator"></div>
+        <span id="statusText">Connecting...</span>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🧠 DSM-5 Analysis</h1>
+            <p>Psychological Symptom Analysis Against DSM-5 Criteria</p>
+        </header>
+
+        <div class="content">
+            <div class="disclaimer">
+                <h3>⚠️ IMPORTANT MEDICAL DISCLAIMER</h3>
+                <p>This system is <strong>NOT</strong> a substitute for professional medical advice, diagnosis, or treatment. The analysis provided is for informational and educational purposes only. Always consult qualified mental health professionals for proper evaluation and care.</p>
+                <div class="disclaimer-checkbox">
+                    <input type="checkbox" id="disclaimerAccept">
+                    <label for="disclaimerAccept">I understand and accept these limitations</label>
+                </div>
+            </div>
+
+            <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="errorMessage"></div>
+
+            <form id="analysisForm">
+                <div class="form-group">
+                    <label for="symptoms">Describe Your Symptoms</label>
+                    <textarea id="symptoms" placeholder="Describe your symptoms in detail (minimum 10 characters)..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="duration">Duration (Optional)</label>
+                    <input type="text" id="duration" placeholder="e.g., 2 weeks, 1 month, 3 months...">
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-analyze" id="analyzeBtn">Analyze Symptoms</button>
+                    <button type="reset" class="btn-clear">Clear</button>
+                </div>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your symptoms...</p>
+                <p style="font-size: 0.9em; color: #999; margin-top: 10px;">This may take a few moments</p>
+            </div>
+
+            <div class="results" id="results">
+                <div class="analysis-box">
+                    <h3>Analysis Results</h3>
+                    <div class="analysis-text" id="analysisText"></div>
+                </div>
+
+                <div class="sources-section">
+                    <h3>📚 Source Evidence from DSM-5</h3>
+                    <div id="sourcesList"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>🏥 Built for educational purposes only</p>
+            <p>If you are in crisis: Call 911 (US) | National Suicide Prevention Lifeline: 988</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let disclaimerAccepted = false;
+
+        // Elements
+        const form = document.getElementById('analysisForm');
+        const symptomsInput = document.getElementById('symptoms');
+        const durationInput = document.getElementById('duration');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const disclaimerCheckbox = document.getElementById('disclaimerAccept');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkBackendHealth();
+            setInterval(checkBackendHealth, 10000); // Check every 10 seconds
+        });
+
+        // Disclaimer handling
+        disclaimerCheckbox.addEventListener('change', (e) => {
+            disclaimerAccepted = e.target.checked;
+            analyzeBtn.disabled = !disclaimerAccepted;
+        });
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!disclaimerAccepted) {
+                showError('Please accept the medical disclaimer first');
+                return;
+            }
+
+            const symptoms = symptomsInput.value.trim();
+            if (symptoms.length < 10) {
+                showError('Please provide at least 10 characters describing your symptoms');
+                return;
+            }
+
+            await analyzeSymptoms(symptoms, durationInput.value.trim());
+        });
+
+        // API Functions
+        async function checkBackendHealth() {
+            try {
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    statusIndicator.classList.remove('offline');
+                    statusText.textContent = 'Backend Online';
+                } else {
+                    setOffline();
+                }
+            } catch (error) {
+                setOffline();
+            }
+        }
+
+        function setOffline() {
+            statusIndicator.classList.add('offline');
+            statusText.textContent = 'Backend Offline';
+        }
+
+        async function analyzeSymptoms(symptoms, duration) {
+            clearMessages();
+            loading.style.display = 'block';
+            results.classList.remove('active');
+            analyzeBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        symptoms: symptoms,
+                        duration: duration || undefined
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+                showSuccess('Analysis complete! Review the results below.');
+            } catch (error) {
+                showError(`Failed to analyze: ${error.message}`);
+            } finally {
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            // Display analysis
+            document.getElementById('analysisText').innerHTML = escapeHtml(data.analysis);
+
+            // Display sources
+            const sourcesList = document.getElementById('sourcesList');
+            sourcesList.innerHTML = '';
+
+            if (data.sources && data.sources.length > 0) {
+                data.sources.forEach((source, index) => {
+                    const sourceEl = createSourceElement(source, index + 1);
+                    sourcesList.appendChild(sourceEl);
+                });
+            } else {
+                sourcesList.innerHTML = '<p style="color: #999;">No relevant sources found in the database.</p>';
+            }
+
+            results.classList.add('active');
+            results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function createSourceElement(source, index) {
+            const div = document.createElement('div');
+            div.className = 'source-item';
+
+            const score = source.relevance_score ? (source.relevance_score * 100).toFixed(1) : 'N/A';
+
+            div.innerHTML = `
+                <div class="source-header">
+                    <div>
+                        <div class="source-title">Source #${index}</div>
+                        <div class="source-meta">
+                            ${source.disorder_name ? `<span class="badge">${escapeHtml(source.disorder_name)}</span>` : ''}
+                            ${source.disorder_category ? `<span class="badge">${escapeHtml(source.disorder_category)}</span>` : ''}
+                            ${source.criteria_label ? `<span class="badge">${escapeHtml(source.criteria_label)}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="badge score">Match: ${score}%</div>
+                </div>
+
+                <div class="metadata-grid">
+                    ${source.icd_code ? `<div class="metadata-item"><strong>ICD Code</strong>${escapeHtml(source.icd_code)}</div>` : ''}
+                    ${source.page_number ? `<div class="metadata-item"><strong>Page</strong>${source.page_number}</div>` : ''}
+                    ${source.section_type ? `<div class="metadata-item"><strong>Section</strong>${escapeHtml(source.section_type)}</div>` : ''}
+                </div>
+
+                <div class="source-content">
+                    ${escapeHtml(source.content)}
+                </div>
+            `;
+
+            return div;
+        }
+
+        // Utility Functions
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('active');
+        }
+
+        function clearMessages() {
+            errorMessage.classList.remove('active');
+            successMessage.classList.remove('active');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Form reset helper
+        form.addEventListener('reset', () => {
+            results.classList.remove('active');
+            clearMessages();
+        });
+    </script>
+</body>
+</html>

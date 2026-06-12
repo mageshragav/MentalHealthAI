@@ -149,27 +149,17 @@ Generating embeddings and storing in ChromaDB...
 From the **project root**, run:
 
 ```bash
-# Start FastAPI backend
+# Start FastAPI backend (serves both API and frontend)
 python backend/main.py
 ```
 
-Backend will be available at:
-- **API Base URL**: http://localhost:8000
-- **API Docs (Swagger)**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/health
+The system will be available at:
+- **🌐 Web UI**: http://localhost:8000
+- **📡 API**: http://localhost:8000/analyze (POST endpoint)
+- **📚 API Docs**: http://localhost:8000/docs (Swagger UI)
+- **💚 Health Check**: http://localhost:8000/health
 
-### 6. Start the Frontend
-
-In a **new terminal** from the **project root**:
-
-```bash
-# Start Streamlit frontend
-streamlit run frontend/app.py
-```
-
-Frontend will be available at: **http://localhost:8501**
-
-You should see the Streamlit app open automatically in your browser.
+That's it! The frontend (HTML/CSS/JS) is automatically served by the backend.
 
 ## 📁 Project Structure
 
@@ -199,7 +189,7 @@ Rag_DeviPriya/
 │   │   └── chroma_db/          # Vector database (created after ingestion)
 │   └── logs/                   # Application logs (created automatically)
 ├── frontend/
-│   └── app.py                  # Streamlit web interface
+│   └── index.html              # HTML/CSS/JS web interface (single file)
 ├── .gitignore
 ├── .dockerignore
 └── README.md                   # This file
@@ -455,8 +445,8 @@ python backend/scripts/ingest.py
 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| **Backend** | FastAPI | RESTful API server |
-| **Frontend** | Streamlit | Web interface |
+| **Backend** | FastAPI | REST API + Static file server |
+| **Frontend** | HTML5/CSS3/Vanilla JS | Single-file web interface |
 | **LLM** | OpenAI GPT-4o | Symptom analysis & generation |
 | **Embeddings** | OpenAI text-embedding-3-small | Vector embeddings |
 | **Vector DB** | ChromaDB | Semantic search storage |

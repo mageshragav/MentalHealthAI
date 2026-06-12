@@ -43,47 +43,6 @@ services:
     networks:
       - dsm5-network
 
-  # Frontend Web UI Service
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: dsm5-frontend
-    ports:
-      - "8501:8501"
-    depends_on:
-      backend:
-        condition: service_healthy
-    volumes:
-      # Logs persistence
-      - ./backend/logs:/app/backend/logs
-      # Streamlit cache (optional)
-      - ~/.streamlit:/root/.streamlit
-    env_file:
-      - backend/.env
-    environment:
-      # Backend Configuration
-      BACKEND_URL: "http://backend:8000"
-
-      # Python Configuration
-      PYTHONPATH: "/app"
-      PYTHONDONTWRITEBYTECODE: "1"
-      PYTHONUNBUFFERED: "1"
-
-      # Streamlit Configuration
-      STREAMLIT_SERVER_PORT: "8501"
-      STREAMLIT_SERVER_ADDRESS: "0.0.0.0"
-      STREAMLIT_SERVER_HEADLESS: "true"
-      STREAMLIT_CLIENT_SHOWERRORDETAILS: "true"
-    command:
-      - "streamlit"
-      - "run"
-      - "frontend/app.py"
-      - "--server.port=8501"
-      - "--server.address=0.0.0.0"
-    restart: unless-stopped
-    networks:
-      - dsm5-network
 
   # Document Ingestion Service (Optional)
   # Use with: docker-compose run --rm ingest

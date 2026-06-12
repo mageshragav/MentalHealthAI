@@ -41,31 +41,33 @@ python main.py
 ```
 
 Server will be available at:
-- **API**: http://localhost:8000
-- **Docs**: http://localhost:8000/docs (Swagger UI)
-- **Health**: http://localhost:8000/health
+- **🌐 Web UI**: http://localhost:8000 (HTML/CSS/JS frontend)
+- **📡 API**: http://localhost:8000/analyze (REST endpoint)
+- **📚 Docs**: http://localhost:8000/docs (Swagger UI)
+- **💚 Health**: http://localhost:8000/health (Health check)
 
 ## 📁 Directory Structure
 
 ```
 backend/
-├── main.py                 # FastAPI application entry point
-├── config.py               # Configuration management (Pydantic Settings)
-├── models.py               # Pydantic models for requests/responses
-├── database.py             # ChromaDB vector database management
-├── rag_pipeline.py         # RAG implementation with LangChain
-├── .env.example            # Environment variable template
-├── .env                    # Local environment variables (not committed)
+├── main.py                 # FastAPI app (serves API + static frontend)
+├── config.py               # Configuration (Pydantic Settings)
+├── models.py               # Request/response models
+├── database.py             # ChromaDB vector database
+├── rag_pipeline.py         # RAG pipeline with LangChain
+├── .env.example            # Environment variables template
+├── .env                    # Local config (not committed)
 ├── pyproject.toml          # Python dependencies
 ├── uv.lock                 # Dependency lock file
+├── README.md               # This file
 ├── scripts/
-│   └── ingest.py           # Document ingestion and vector DB population
+│   └── ingest.py           # Document ingestion script
 ├── chunking/
-│   ├── metadata_extractor.py    # Stage 1: Extract metadata from DSM-5
+│   ├── metadata_extractor.py    # Stage 1: Metadata extraction
 │   ├── semantic_splitter.py     # Stage 2: Semantic chunking
-│   └── hybrid_processor.py      # Orchestrates both stages
+│   └── hybrid_processor.py      # Processing orchestrator
 ├── data/
-│   └── chroma_db/          # Vector database storage (created at runtime)
+│   └── chroma_db/          # Vector database (created at runtime)
 └── logs/
     └── app.log             # Application logs (created at runtime)
 ```

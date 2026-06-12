@@ -46,8 +46,7 @@ ENV PATH="/root/.local/bin:$PATH"
 # Copy application code
 COPY backend ./backend
 COPY frontend ./frontend
-COPY .gitignore .dockerignore ./
-
+COPY .gitignore* .dockerignore* ./ 2>/dev/null || true
 # Create necessary directories for persistence
 RUN mkdir -p /app/backend/data/chroma_db /app/backend/logs && \
     chmod -R 777 /app/backend/data /app/backend/logs
@@ -56,8 +55,8 @@ RUN mkdir -p /app/backend/data/chroma_db /app/backend/logs && \
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Expose ports
-EXPOSE 8000 8501
+# Expose API port (frontend served from backend)
+EXPOSE 8000
 
 # Default command (can be overridden in docker-compose)
 CMD ["python", "backend/main.py"]

@@ -24,10 +24,10 @@ nano backend/.env
 
 ```bash
 # Build all services
-docker-compose build
+docker compose build
 
 # Or build specific service
-docker-compose build backend
+docker compose build backend
 ```
 
 ### 3. Ingest Documents (First Time Only)
@@ -36,7 +36,7 @@ Before starting the services, ingest the DSM-5 document:
 
 ```bash
 # Run ingestion service
-docker-compose run --rm ingest
+docker compose run --rm ingest
 
 # The service will:
 # 1. Load DSM-5.pdf from project root
@@ -50,67 +50,49 @@ docker-compose run --rm ingest
 ### 4. Start Services
 
 ```bash
-# Start all services (backend + frontend)
-docker-compose up -d
+# Start the backend (serves API + frontend)
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Check service status
-docker-compose ps
+docker compose ps
 ```
 
-### 5. Access Applications
+### 5. Access Application
 
-- **Frontend UI**: http://localhost:8501
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/health
+- **🌐 Web UI (Frontend)**: http://localhost:8000
+- **📡 REST API**: http://localhost:8000/analyze
+- **📚 API Docs**: http://localhost:8000/docs (Swagger)
+- **💚 Health Check**: http://localhost:8000/health
 
 ## 📚 Available Services
 
 ### Backend Service
 
-Runs the FastAPI backend on port 8000.
+Runs the FastAPI backend on port 8000. Serves both the REST API and the HTML/CSS/JS frontend.
 
 ```bash
 # Start only backend
-docker-compose up -d backend
+docker compose up -d backend
 
 # View logs
-docker-compose logs -f backend
+docker compose logs -f backend
 
 # Stop backend
-docker-compose stop backend
+docker compose stop backend
 
 # Restart backend
-docker-compose restart backend
+docker compose restart backend
 ```
 
 **Features:**
+
 - Auto-reload disabled in Docker (production mode)
 - Health check every 30 seconds
 - Persistent data storage
 - Log file rotation
-
-### Frontend Service
-
-Runs the Streamlit UI on port 8501.
-
-```bash
-# Start only frontend
-docker-compose up -d frontend
-
-# View logs
-docker-compose logs -f frontend
-
-# Frontend depends on backend being healthy
-```
-
-**Features:**
-- Automatically waits for backend health check
-- Connects to backend via internal network
-- Real-time updates
 
 ### Ingestion Service
 
@@ -118,18 +100,19 @@ One-time document processing. Uses special `ingest` profile.
 
 ```bash
 # Run ingestion
-docker-compose run --rm ingest
+docker compose run --rm ingest
 
 # Run with different environment variables
-docker-compose run --rm \
+docker compose run --rm \
   -e LOG_LEVEL=DEBUG \
   ingest
 
 # Remove image after completion
-docker-compose run --rm ingest
+docker compose run --rm ingest
 ```
 
 **Features:**
+
 - Interactive prompt for database reset
 - Full app access
 - Buffered output
@@ -170,10 +153,6 @@ services:
       - LOG_LEVEL=DEBUG
     volumes:
       - ./backend:/app/backend  # Hot reload
-
-  frontend:
-    environment:
-      - STREAMLIT_LOGGER_LEVEL=debug
 ```
 
 This file is automatically loaded and ignored by git.
@@ -218,9 +197,8 @@ docker run --rm -v dsm5_data:/data -v $(pwd):/backup \
 # Check logs
 docker-compose logs backend
 
-# Check if ports are in use
+# Check if port 8000 is in use
 lsof -i :8000
-lsof -i :8501
 
 # Clean up and rebuild
 docker-compose down
@@ -235,27 +213,30 @@ ERROR - Missing credentials. Please pass an `api_key`...
 ```
 
 **Solution:**
+
 1. Check `backend/.env` exists
 2. Verify `OPENAI_API_KEY=sk-...` is set
 3. Restart: `docker-compose restart backend`
 
-### Frontend Can't Connect to Backend
+### Can't Access Web Interface
 
 ```
 Failed to connect to http://localhost:8000
 ```
 
 **Solution:**
+
 1. Check backend is healthy: `docker-compose ps`
 2. Verify health: `curl http://localhost:8000/health`
-3. Check network: `docker network ls`
-4. Restart frontend: `docker-compose restart frontend`
+3. Check logs: `docker-compose logs backend`
+4. Restart backend: `docker-compose restart backend`
 
 ### Ingestion Fails
 
 **Issue**: `DSM-5.pdf not found`
 
 **Solution:**
+
 ```bash
 # Ensure PDF is in project root
 ls -la DSM-5.pdf
@@ -267,6 +248,7 @@ mv /path/to/DSM-5.pdf .
 **Issue**: `CHROMA_TELEMETRY_DISABLED: 'true'` not working
 
 **Solution:** Already handled in docker-compose.yml, but can force:
+
 ```bash
 docker-compose run --rm \
   -e CHROMA_TELEMETRY_DISABLED=true \
@@ -340,18 +322,17 @@ docker-compose run --rm ingest
 ### View Real-time Logs
 
 ```bash
-# All services
-docker-compose logs -f
-
-# Specific service
+# Backend logs
 docker-compose logs -f backend
-docker-compose logs -f frontend
 
 # Last 50 lines
-docker-compose logs --tail=50
+docker-compose logs --tail=50 backend
 
 # With timestamps
-docker-compose logs -t
+docker-compose logs -t backend
+
+# Follow logs in real-time
+docker-compose logs -f
 ```
 
 ### Execute Commands in Container
@@ -386,26 +367,27 @@ docker-compose exec backend curl http://localhost:8000/health
 
 1. **Use environment variables** (not in Dockerfile)
 2. **Disable debug mode**:
+
    ```yaml
    backend:
      environment:
        - API_RELOAD=false
        - LOG_LEVEL=WARNING
    ```
-
 3. **Use secrets management**:
+
    ```yaml
    services:
      backend:
        secrets:
          - openai_key
-   
+
    secrets:
      openai_key:
        external: true
    ```
-
 4. **Run as non-root**:
+
    ```dockerfile
    RUN useradd -m -u 1000 appuser
    USER appuser
@@ -434,13 +416,14 @@ backend:
 
 ### Load Balancing
 
-With multiple replicas:
+For horizontal scaling with multiple backend replicas, use Nginx/HAProxy in front:
 
 ```bash
+# Scale to 3 replicas on different ports
 docker-compose up -d --scale backend=3
 ```
 
-Then use Nginx/HAProxy for load balancing.
+Then configure load balancer to proxy requests to all replicas.
 
 ## 📊 Monitoring
 

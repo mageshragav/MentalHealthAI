@@ -5,9 +5,11 @@ Main application entry point
 
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from loguru import logger
+from pathlib import Path
 import sys
 
 from config import get_settings
@@ -91,15 +93,26 @@ app.add_middleware(
 )
 
 
+# Serve static frontend files
+frontend_path = Path(__file__).parent.parent / "frontend"
+if frontend_path.exists():
+    app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")
+
+
 @app.get("/", tags=["Root"])
 async def root():
-    """Root endpoint"""
-    return {
-        "message": "DSM-5 Psychological Analysis System API",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "health": "/health"
-    }
+    """Root endpoint - serve the frontend"""
+    frontend_file = frontend_path / "index.html"
+    if frontend_file.exists():
+        return FileResponse(frontend_file, media_type="text/html")
+    else:
+        return {
+            "message": "DSM-5 Psychological Analysis System API",
+            "version": "1.0.0",
+            "docs": "/docs",
+            "health": "/health",
+            "frontend": "Frontend HTML not found"
+        }
 
 
 @app.get(
