@@ -1,0 +1,27 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+ "fastapi",
+ "uvicorn[standard]",
+ "pydantic",
+ "pydantic-settings",
+ "python-dotenv",
+ "langchain",
+ "langchain-openai",
+ "langchain-community",
+ "langchain-experimental",
+ "chromadb",
+ "pypdf",
+ "openai",
+ "streamlit",
+ "requests",
+ "python-multipart",
+ "aiofiles==23.2.1",
+ "loguru==0.7.2",
+ "tiktoken",
+ "environs>=15.0.1",
+]

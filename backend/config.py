@@ -6,13 +6,15 @@ Loads settings from environment variables with validation
 from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
+from environs import env
 
+env.read_env()
 
 class Settings(BaseSettings):
     """Application settings with environment variable support"""
     
     # OpenAI Configuration
-    openai_api_key: str
+    openai_api_key: str = env.str('OPENAI_API_KEY')
     embedding_model: str = "text-embedding-3-small"
     llm_model: str = "gpt-4o"
     llm_temperature: float = 0.3

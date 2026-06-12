@@ -3,9 +3,9 @@ Document Chunking Package
 Hybrid approach: Metadata extraction + Semantic chunking
 """
 
-from backend.chunking.metadata_extractor import MetadataExtractor
-from backend.chunking.semantic_splitter import SemanticSplitter
-from backend.chunking.hybrid_processor import HybridDocumentProcessor
+from chunking.metadata_extractor import MetadataExtractor
+from chunking.semantic_splitter import SemanticSplitter
+from chunking.hybrid_processor import HybridDocumentProcessor
 
 __all__ = [
     "MetadataExtractor",

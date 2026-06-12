@@ -9,10 +9,10 @@ from pathlib import Path
 from pypdf import PdfReader
 from loguru import logger
 
-from backend.config import get_settings
-from backend.models import ChunkMetadata
-from backend.chunking.metadata_extractor import MetadataExtractor, DSM5Section
-from backend.chunking.semantic_splitter import SemanticSplitter
+from config import get_settings
+from models import ChunkMetadata
+from chunking.metadata_extractor import MetadataExtractor, DSM5Section
+from chunking.semantic_splitter import SemanticSplitter
 
 
 class HybridDocumentProcessor:

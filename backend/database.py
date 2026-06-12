@@ -13,19 +13,19 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from loguru import logger
 
-from backend.config import get_settings
-from backend.models import ChunkMetadata, SourceDocument
+from config import get_settings
+from models import ChunkMetadata, SourceDocument
 
 
 class VectorDatabase:
     """Manages ChromaDB vector database operations"""
-    
+
     def __init__(self):
         """Initialize ChromaDB client and collection"""
         self.settings = get_settings()
         self.embeddings = OpenAIEmbeddings(
             model=self.settings.embedding_model,
-            openai_api_key=self.settings.openai_api_key
+            api_key=self.settings.openai_api_key
         )
         
         # Initialize ChromaDB client with persistence
@@ -33,7 +33,8 @@ class VectorDatabase:
             path=str(self.settings.get_chroma_path()),
             settings=ChromaSettings(
                 anonymized_telemetry=False,
-                allow_reset=True
+                allow_reset=True,
+                is_persistent=True
             )
         )
         

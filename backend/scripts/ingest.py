@@ -10,9 +10,9 @@ from loguru import logger
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from backend.config import get_settings
-from backend.database import get_vector_db
-from backend.chunking.hybrid_processor import HybridDocumentProcessor
+from config import get_settings
+from database import get_vector_db
+from chunking.hybrid_processor import HybridDocumentProcessor
 
 
 def setup_logging():

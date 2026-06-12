@@ -5,14 +5,14 @@ Retrieval-Augmented Generation for DSM-5 Analysis
 
 from typing import List, Optional
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from loguru import logger
 
-from backend.config import get_settings
-from backend.database import get_vector_db
-from backend.models import (
+from config import get_settings
+from database import get_vector_db
+from models import (
     SymptomAnalysisRequest,
     SymptomAnalysisResponse,
     SourceDocument

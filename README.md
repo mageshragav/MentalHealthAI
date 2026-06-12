@@ -53,17 +53,17 @@ A sophisticated **Retrieval-Augmented Generation (RAG)** system that analyzes ps
 
 ## 🚀 Quick Start
 
-### 1. Clone and Setup
+### 1. Install Dependencies
 
 ```bash
-# Clone the repository (or extract the files)
-cd dsm5-rag-system
+# Navigate to backend directory
+cd backend
 
-# Install uv if you haven't already
-curl -LsSf https://astral.sh/uv/install.sh | sh
+# Install dependencies using uv
+uv sync
 
-# Install dependencies
-uv pip install -r requirements.txt
+# Or install manually
+uv pip install -r pyproject.toml
 ```
 
 ### 2. Configure Environment
@@ -76,124 +76,183 @@ cp .env.example .env
 nano .env  # or use your preferred editor
 ```
 
-Required environment variables:
+**Required environment variables:**
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_API_KEY=sk-your-actual-openai-key-here
 ```
+
+To get your OpenAI API key:
+1. Go to https://platform.openai.com/api-keys
+2. Create a new secret key
+3. Copy it and paste in `.env`
 
 ### 3. Prepare DSM-5 Document
 
-Place your `DSM-5.pdf` file in the project root directory:
+Place your `DSM-5.pdf` file in the **project root** directory:
+
 ```
-dsm5-rag-system/
+Rag_DeviPriya/
 ├── DSM-5.pdf          ← Place here
 ├── backend/
+│   ├── .env           ← Your API key goes here
+│   ├── main.py
+│   ├── scripts/
+│   └── ...
 ├── frontend/
-└── ...
+└── README.md
 ```
 
 ### 4. Ingest DSM-5 Document
 
-Run the ingestion script to process the PDF and populate the vector database:
+From the **project root**, run the ingestion script:
 
 ```bash
-python scripts/ingest.py
+# Disable ChromaDB telemetry (optional but recommended)
+export CHROMA_TELEMETRY_DISABLED=true
+
+# Run ingestion
+python backend/scripts/ingest.py
 ```
 
 This will:
 - Extract text from DSM-5.pdf
 - Apply hybrid chunking (metadata + semantic)
-- Generate embeddings
-- Store in ChromaDB
+- Generate embeddings via OpenAI
+- Store in ChromaDB vector database
 
-**Note**: This process may take 10-30 minutes depending on document size.
+**⏱️ Duration**: 10-30 minutes depending on document size (first run only)
+
+**Expected output:**
+```
+============ DSM-5 Document Ingestion Pipeline ============
+Found DSM-5.pdf at: /path/to/DSM-5.pdf
+Initializing components...
+Database is empty. Creating new collection...
+
+Stage 1: Loading and Processing DSM-5.pdf
+============================================================
+Processing Statistics:
+  Total chunks: 1247
+  Average chunk size: 1850 characters
+  ...
+
+Stage 2: Adding Documents to Vector Database
+============================================================
+Generating embeddings and storing in ChromaDB...
+(This may take several minutes depending on document size)
+  Batch 1/25 complete (50/1247 documents)
+  ...
+```
 
 ### 5. Start the Backend
 
+From the **project root**, run:
+
 ```bash
-# Make script executable (Linux/Mac)
-chmod +x scripts/start_backend.sh
-
-# Start backend
-./scripts/start_backend.sh
-
-# Or run directly
+# Start FastAPI backend
 python backend/main.py
 ```
 
 Backend will be available at:
-- API: http://localhost:8000
-- Docs: http://localhost:8000/docs
+- **API Base URL**: http://localhost:8000
+- **API Docs (Swagger)**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/health
 
 ### 6. Start the Frontend
 
-In a new terminal:
+In a **new terminal** from the **project root**:
 
 ```bash
-# Make script executable (Linux/Mac)
-chmod +x scripts/start_frontend.sh
-
-# Start frontend
-./scripts/start_frontend.sh
-
-# Or run directly
+# Start Streamlit frontend
 streamlit run frontend/app.py
 ```
 
-Frontend will be available at: http://localhost:8501
+Frontend will be available at: **http://localhost:8501**
+
+You should see the Streamlit app open automatically in your browser.
 
 ## 📁 Project Structure
 
 ```
-dsm5-rag-system/
+Rag_DeviPriya/
+├── DSM-5.pdf                   # ← Place your DSM-5 PDF here
 ├── backend/
 │   ├── __init__.py
 │   ├── main.py                 # FastAPI application
 │   ├── config.py               # Configuration management
 │   ├── models.py               # Pydantic models
-│   ├── database.py             # ChromaDB management
+│   ├── database.py             # ChromaDB vector database manager
 │   ├── rag_pipeline.py         # RAG implementation
-│   └── chunking/
-│       ├── __init__.py
-│       ├── metadata_extractor.py    # Stage 1: Metadata extraction
-│       ├── semantic_splitter.py     # Stage 2: Semantic chunking
-│       └── hybrid_processor.py      # Orchestrator
+│   ├── .env.example            # Environment variable template
+│   ├── .env                    # ← Add your OpenAI API key here
+│   ├── pyproject.toml          # Python dependencies (uv)
+│   ├── uv.lock                 # Dependency lock file
+│   ├── README.md               # Backend-specific documentation
+│   ├── scripts/
+│   │   └── ingest.py           # Document ingestion script
+│   ├── chunking/
+│   │   ├── __init__.py
+│   │   ├── metadata_extractor.py    # Stage 1: Metadata extraction
+│   │   ├── semantic_splitter.py     # Stage 2: Semantic chunking
+│   │   └── hybrid_processor.py      # Orchestrator
+│   ├── data/
+│   │   └── chroma_db/          # Vector database (created after ingestion)
+│   └── logs/                   # Application logs (created automatically)
 ├── frontend/
-│   └── app.py                  # Streamlit UI
-├── scripts/
-│   ├── ingest.py               # Document ingestion
-│   ├── start_backend.sh        # Backend startup
-│   └── start_frontend.sh       # Frontend startup
-├── data/
-│   └── chroma_db/              # Vector database (created after ingestion)
-├── logs/                       # Application logs (created automatically)
-├── requirements.txt            # Python dependencies
-├── pyproject.toml              # Project metadata for uv
-├── .env.example                # Environment template
+│   └── app.py                  # Streamlit web interface
 ├── .gitignore
-└── README.md
+├── .dockerignore
+└── README.md                   # This file
 ```
 
 ## 🔧 Configuration
 
-All configuration is managed through environment variables in `.env`:
+All configuration is managed through environment variables in `backend/.env`:
 
-### Core Settings
-- `OPENAI_API_KEY`: Your OpenAI API key (required)
-- `EMBEDDING_MODEL`: Embedding model (default: text-embedding-3-small)
-- `LLM_MODEL`: Language model (default: gpt-4o)
-- `LLM_TEMPERATURE`: Model temperature (default: 0.3)
+### Required Settings
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `OPENAI_API_KEY` | Your OpenAI API key | Required |
 
-### Chunking Settings
-- `SEMANTIC_BREAKPOINT_THRESHOLD`: Similarity threshold for semantic splits (default: 0.75)
-- `MIN_CHUNK_SIZE`: Minimum chunk size in characters (default: 500)
-- `MAX_CHUNK_SIZE`: Maximum chunk size in characters (default: 2000)
+### LLM & Embedding Settings
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `EMBEDDING_MODEL` | Model for generating embeddings | text-embedding-3-small |
+| `LLM_MODEL` | Language model for analysis | gpt-4o |
+| `LLM_TEMPERATURE` | Model response creativity (0-1) | 0.3 |
 
-### RAG Settings
-- `TOP_K_RESULTS`: Number of documents to retrieve (default: 5)
-- `SIMILARITY_THRESHOLD`: Minimum similarity score (default: 0.7)
+### Chunking Settings (Document Processing)
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SEMANTIC_BREAKPOINT_THRESHOLD` | Similarity threshold for semantic splits | 0.75 |
+| `MIN_CHUNK_SIZE` | Minimum chunk size in characters | 500 |
+| `MAX_CHUNK_SIZE` | Maximum chunk size in characters | 2000 |
+| `CHUNK_OVERLAP` | Overlap between chunks in characters | 100 |
 
-See `.env.example` for all available options.
+### RAG Settings (Retrieval & Search)
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `TOP_K_RESULTS` | Number of documents to retrieve | 5 |
+| `SIMILARITY_THRESHOLD` | Minimum similarity score for results | 0.7 |
+| `RERANK_ENABLED` | Enable result re-ranking | true |
+
+### API Settings
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `API_HOST` | API bind address | 0.0.0.0 |
+| `API_PORT` | API port number | 8000 |
+| `API_RELOAD` | Auto-reload on code changes (dev) | true |
+| `STREAMLIT_PORT` | Streamlit frontend port | 8501 |
+| `BACKEND_URL` | Backend URL for frontend | http://localhost:8000 |
+
+### Safety & Features
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ENABLE_DISCLAIMER` | Show medical disclaimer | true |
+| `REQUIRE_DISCLAIMER_ACCEPTANCE` | Require user to accept disclaimer | true |
+| `LOG_USER_QUERIES` | Log user queries (privacy) | false |
+
+**See `backend/.env.example` for all available options.**
 
 ## 🎯 Usage
 
@@ -342,35 +401,70 @@ python scripts/ingest.py
 
 ## 🐛 Troubleshooting
 
+### Missing OpenAI API Key Error
+**Error**: `Missing credentials. Please pass an 'api_key'... or set the 'OPENAI_API_KEY' environment variable`
+
+**Solution:**
+1. Copy `.env.example` to `.env` in the `backend/` directory
+2. Add your actual OpenAI API key: `OPENAI_API_KEY=sk-your-key-here`
+3. Save and restart the application
+
+### OpenAI Client API Error
+**Error**: `'OpenAI' object has no attribute 'create'`
+
+**Solution:** This is a dependency version mismatch. The fix has been applied to `database.py`. Just update your code to the latest version from the repository.
+
+### ChromaDB Telemetry Warning
+**Warning**: `Failed to send telemetry event ClientCreateCollectionEvent`
+
+**Solution:** This is non-fatal but can be suppressed with:
+```bash
+export CHROMA_TELEMETRY_DISABLED=true
+python backend/scripts/ingest.py
+```
+
 ### Backend won't start
-- Check if `.env` file exists with valid `OPENAI_API_KEY`
-- Ensure port 8000 is not in use
-- Check logs in `logs/app.log`
+- Ensure `.env` file exists in `backend/` with valid `OPENAI_API_KEY`
+- Check if port 8000 is already in use: `lsof -i :8000`
+- Review logs: `tail -f backend/logs/app.log`
+- Ensure all dependencies are installed: `cd backend && uv sync`
+
+### Ingestion script fails
+- Verify `DSM-5.pdf` is in the **project root** (not in `backend/`)
+- Check internet connection (needed for OpenAI API calls)
+- Ensure your OpenAI API key has sufficient credits
+- Try with telemetry disabled: `export CHROMA_TELEMETRY_DISABLED=true`
 
 ### Frontend can't connect to backend
 - Verify backend is running: `curl http://localhost:8000/health`
-- Check `BACKEND_URL` in `.env` (default: http://localhost:8000)
+- Check `BACKEND_URL` in `backend/.env` (default: `http://localhost:8000`)
+- Ensure both are on the same machine or network
 
 ### Vector database is empty
-- Run ingestion script: `python scripts/ingest.py`
+- Run ingestion script: `python backend/scripts/ingest.py` (from project root)
 - Ensure `DSM-5.pdf` is in project root
-- Check ingestion logs for errors
+- Wait for all batches to complete (may take 10-30 minutes)
+- Check for errors in console output
 
 ### Slow response times
-- Reduce `TOP_K_RESULTS` in `.env`
-- Use smaller embedding model
-- Check OpenAI API rate limits
+- Reduce `TOP_K_RESULTS` in `backend/.env` (default: 5)
+- Check OpenAI API rate limits at https://platform.openai.com/account/rate-limits
+- Verify network connectivity is stable
 
 ## 📚 Technology Stack
 
-- **Backend**: FastAPI 0.109.0
-- **Frontend**: Streamlit 1.30.0
-- **LLM**: OpenAI GPT-4o
-- **Embeddings**: OpenAI text-embedding-3-small
-- **Vector DB**: ChromaDB 0.4.22
-- **Orchestration**: LangChain 0.1.4
-- **PDF Processing**: pypdf 4.0.1
-- **Logging**: Loguru 0.7.2
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Backend** | FastAPI | RESTful API server |
+| **Frontend** | Streamlit | Web interface |
+| **LLM** | OpenAI GPT-4o | Symptom analysis & generation |
+| **Embeddings** | OpenAI text-embedding-3-small | Vector embeddings |
+| **Vector DB** | ChromaDB | Semantic search storage |
+| **Orchestration** | LangChain | RAG pipeline coordination |
+| **PDF Processing** | pypdf | DSM-5 document parsing |
+| **Logging** | Loguru | Structured logging |
+| **Package Manager** | uv | Fast Python dependency management |
+| **Config Management** | Pydantic Settings | Environment variable validation |
 
 ## 🔒 Security & Privacy
 

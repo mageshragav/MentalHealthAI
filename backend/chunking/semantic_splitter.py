@@ -6,10 +6,10 @@ Stage 2: Apply semantic chunking within metadata sections
 from typing import List, Optional
 from langchain_experimental.text_splitter import SemanticChunker
 from langchain_openai import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger
 
-from backend.config import get_settings
+from config import get_settings
 
 
 class SemanticSplitter:

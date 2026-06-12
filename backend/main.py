@@ -10,15 +10,15 @@ from contextlib import asynccontextmanager
 from loguru import logger
 import sys
 
-from backend.config import get_settings
-from backend.models import (
+from config import get_settings
+from models import (
     SymptomAnalysisRequest,
     SymptomAnalysisResponse,
     HealthCheckResponse,
     ErrorResponse
 )
-from backend.rag_pipeline import get_rag_pipeline
-from backend.database import get_vector_db
+from rag_pipeline import get_rag_pipeline
+from database import get_vector_db
 
 
 # Configure logging
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     import uvicorn
     
     uvicorn.run(
-        "backend.main:app",
+        "main:app",
         host=settings.api_host,
         port=settings.api_port,
         reload=settings.api_reload,

@@ -8,8 +8,8 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from loguru import logger
 
-from backend.config import get_settings
-from backend.models import ChunkMetadata
+from config import get_settings
+from models import ChunkMetadata
 
 
 @dataclass
